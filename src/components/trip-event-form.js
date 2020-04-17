@@ -1,5 +1,5 @@
 import {setDateFormat} from '../utils';
-import {destinations} from '../const';
+import {destinations} from '../consts';
 
 export const createTripEventForm = (event) => {
   const {type, price, startTime, endTime} = event;

@@ -1,6 +1,6 @@
 import {getRandom, getRandomDate, getRandomIntegerNumber} from '../utils';
 import {types, destinations, infoStrings, options, foto} from '../const';
-import {MAX_ITEMS} from '../const';
+import {MAX_ITEMS} from '../consts';
 
 export const generateTripEvent = () => {
   const startTime = getRandomDate(getRandomIntegerNumber(-3, 0), 0);

@@ -1,5 +1,23 @@
-export const types = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
-export const destinations = [`Amsterdam`, `Geneva`, `Chamonix`, `Saint Petersburg`];
+export const types = [
+  `Taxi`,
+  `Bus`,
+  `Train`,
+  `Ship`,
+  `Transport`,
+  `Drive`,
+  `Flight`,
+  `Check-in`,
+  `Sightseeing`,
+  `Restaurant`
+];
+
+export const destinations = [
+  `Amsterdam`,
+  `Geneva`,
+  `Chamonix`,
+  `Saint Petersburg`
+];
+
 export const infoStrings = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
   `Cras aliquet varius magna, non porta ligula feugiat eget.`,

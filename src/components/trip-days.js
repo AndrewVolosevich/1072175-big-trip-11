@@ -1,5 +1,5 @@
 import {createTripEventItem} from './trip-event-item';
-import {MONTH_NAMES} from '../const';
+import {MONTH_NAMES} from '../consts';
 
 const createDatesArr = (tripPoints) => {
   let startDate = tripPoints[1].startTime.getDate();
