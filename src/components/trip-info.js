@@ -1,22 +1,62 @@
-import {MONTH_NAMES} from '../const';
+import {MONTH_NAMES} from "../consts";
+import {createElement} from "../utils";
 
-export const createTripInfo = (tripPoints) => {
-  const reducer = (accumulator, currentValue) => {
-    accumulator += Number(currentValue.price);
-    return accumulator;
-  };
+export default class TripInfoElement {
+  constructor(tripPoints) {
+    this._element = null;
+    this._tripPoints = tripPoints;
+  }
 
-  return (
-    `<section class="trip-main__trip-info  trip-info">
-      <div class="trip-info__main">
-        <h1 class="trip-info__title">${tripPoints[0].destination} &mdash; ${tripPoints[tripPoints.length - 1].destination}</  h1>
+  getTemplate(points) {
+    const getPrice = (accumulator, currentValue) => {
+      accumulator += Number(currentValue.price);
+      return accumulator;
+    };
+    const getTripPoints = (towns) => {
+      const startPoint = towns[0].destination;
+      const midPoint = () => {
+        if (towns.length >= 3) {
+          return `${towns[Math.trunc(towns.length / 2)].destination} &mdash;`;
+        }
 
-        <p class="trip-info__dates">${MONTH_NAMES[tripPoints[0].startTime.getMonth()].substr(0, 3)} ${tripPoints[0].startTime.getDate()}&nbsp;&mdash;&nbsp;${tripPoints[tripPoints.length - 1].startTime.getDate()}</p>
-      </div>
+        return ``;
+      };
+      const endPoint = towns[towns.length - 1].destination;
 
-      <p class="trip-info__cost">
-        Total: &euro;&nbsp;<span class="trip-info__cost-value">${tripPoints.reduce(reducer, 0)}</span>
-      </p>
-    </section>`
-  );
-};
+      return `${startPoint} &mdash; ${midPoint()} ${endPoint}`;
+    };
+    const getTripDates = () => {
+      const month = MONTH_NAMES[points[0].startTime.getMonth()].substr(0, 3);
+      const startDate = points[0].startTime.getDate();
+      const endDate = points[points.length - 1].startTime.getDate();
+
+      return `${month} ${startDate}&nbsp;&mdash;&nbsp;${endDate}`;
+    };
+
+    return (
+      `<section class="trip-main__trip-info  trip-info">
+        <div class="trip-info__main">
+          <h1 class="trip-info__title">${getTripPoints(this._tripPoints)}</  h1>
+
+          <p class="trip-info__dates">${getTripDates()}</p>
+        </div>
+
+        <p class="trip-info__cost">
+          Total: &euro;&nbsp;<span class="trip-info__cost-value">${points.reduce(getPrice, 0)}</span>
+        </p>
+      </section>`
+    );
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate(this._tripPoints));
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
