@@ -9,6 +9,7 @@ import TripDayComponent from "./components/trip-day";
 import TripEventItemComponent from "./components/trip-event-item";
 import TripEventFormComponent from "./components/trip-event-form";
 import TripDaysComponent from "./components/trip-days";
+import NoTripPoints from "./components/no-trip-points";
 
 
 const mainTripElem = document.querySelector(`.trip-main`);
@@ -84,4 +85,8 @@ render(tripEventsElem, tripDaysComponent.getElement(), RenderPosition.BEFOREEND)
 
 const tripDaysElem = document.querySelector(`.trip-days`);
 
+if (datesArr.length === 0) {
+  const noTripPoints = new NoTripPoints();
+  render(tripEventsElem, noTripPoints.getElement(), RenderPosition.BEFOREEND);
+}
 datesArr.forEach((day) => renderTripDay(tripDaysElem, day));
