@@ -1,10 +1,11 @@
-import {setDateFormat, createElement} from '../utils';
+import {setDateFormat} from '../utils/common';
 import {destinations} from '../consts';
+import AbstractComponent from './abstract-component';
 
-export default class TripEventFormComponent {
+export default class TripEventFormComponent extends AbstractComponent {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
   }
 
   getDestinationsMarkup(array) {
@@ -17,8 +18,8 @@ export default class TripEventFormComponent {
     return destOpt;
   }
 
-  getTemplate(event) {
-    const {type, price, startTime, endTime} = event;
+  getTemplate() {
+    const {type, price, startTime, endTime} = this._event;
     const startType = type.toLowerCase() ? type.toLowerCase() : `bus`;
     const startPrice = price ? price : ``;
 
@@ -130,14 +131,7 @@ export default class TripEventFormComponent {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate(this._event));
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setSubmitHandler(cb) {
+    this.getElement().addEventListener(`submit`, cb);
   }
 }

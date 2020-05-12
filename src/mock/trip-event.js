@@ -1,4 +1,4 @@
-import {getRandom, getRandomDate, getRandomIntegerNumber} from "../utils";
+import {getRandom, getRandomDate, getRandomIntegerNumber} from "../utils/common";
 import {types, destinations, infoStrings, options, foto} from "../consts";
 import {MAX_ITEMS} from "../consts";
 
@@ -39,5 +39,4 @@ export const createDaysArr = (tripPoints) => {
   }
 };
 createDaysArr(tripEventMocks);
-
 export const datesArr = days;

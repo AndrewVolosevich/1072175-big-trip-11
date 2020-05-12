@@ -1,10 +1,6 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
-export default class TripTabsComponent {
-  constructor() {
-    this._element = null;
-  }
-
+export default class TripTabsComponent extends AbstractComponent {
   getTemplate() {
     return (
       `<nav class="trip-controls__trip-tabs  trip-tabs">
@@ -12,17 +8,5 @@ export default class TripTabsComponent {
         <a class="trip-tabs__btn" href="#">Stats</a>
       </nav>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
