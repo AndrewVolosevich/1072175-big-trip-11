@@ -1,9 +1,16 @@
 import AbstractComponent from "./abstract-component";
 
+export const SortType = {
+  TIME: `time`,
+  PRICE: `price`,
+  DEFAULT: `event`,
+};
+
 export default class TripSortComponent extends AbstractComponent {
   constructor(sortings) {
     super();
     this._sortings = sortings;
+    this._currenSortType = SortType.DEFAULT;
   }
 
   getMarkup(name, isChecked) {
@@ -14,7 +21,7 @@ export default class TripSortComponent extends AbstractComponent {
     return (
       `<div class="trip-sort__item  trip-sort__item--${lowerName}">
         <input id="sort-${lowerName}" class="trip-sort__input  visually-hidden"   type="radio" name="trip-sort" value="sort-${lowerName}" ${checked}>
-        <label class="trip-sort__btn ${checkedClass}" for="sort-${lowerName}">
+        <label class="trip-sort__btn ${checkedClass}" for="sort-${lowerName}" data-sort-type="${lowerName}">
           ${name}
         </label>
       </div>`
@@ -31,5 +38,27 @@ export default class TripSortComponent extends AbstractComponent {
         <span class="trip-sort__item  trip-sort__item--offers">Offers</span>
       </form>`
     );
+  }
+
+  getSortType() {
+    return this._currenSortType;
+  }
+
+  setSortTypeChangeHandler(handler) {
+    this.getElement().addEventListener(`click`, (evt) => {
+      evt.preventDefault();
+
+      if (evt.target.tagName !== `LABEL`) {
+        return;
+      }
+      const sortType = evt.target.dataset.sortType;
+
+      if (this._currenSortType === sortType) {
+        return;
+      }
+
+      this._currenSortType = sortType;
+      handler(this._currenSortType);
+    });
   }
 }
