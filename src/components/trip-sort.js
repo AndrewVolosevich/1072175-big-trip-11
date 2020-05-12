@@ -1,9 +1,9 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
-export default class TripSortComponent {
+export default class TripSortComponent extends AbstractComponent {
   constructor(sortings) {
+    super();
     this._sortings = sortings;
-    this._element = null;
   }
 
   getMarkup(name, isChecked) {
@@ -21,8 +21,8 @@ export default class TripSortComponent {
     );
   }
 
-  getTemplate(sortings) {
-    const sortMarkup = sortings.map((it, i) => this.getMarkup(it, i === 0)).join(`\n`);
+  getTemplate() {
+    const sortMarkup = this._sortings.map((it, i) => this.getMarkup(it, i === 0)).join(`\n`);
 
     return (
       `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -31,16 +31,5 @@ export default class TripSortComponent {
         <span class="trip-sort__item  trip-sort__item--offers">Offers</span>
       </form>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate(this._sortings));
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

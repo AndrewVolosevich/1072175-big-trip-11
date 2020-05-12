@@ -1,10 +1,10 @@
-import {createElement} from "../utils";
-import {setTimeFormat, setEventDurationFormat} from "../utils";
+import {setTimeFormat, setEventDurationFormat} from "../utils/common";
+import AbstractComponent from "./abstract-component";
 
-export default class TripEventItemComponent {
+export default class TripEventItemComponent extends AbstractComponent {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
   }
 
   getOfferMarkup(item) {
@@ -17,8 +17,8 @@ export default class TripEventItemComponent {
     );
   }
 
-  getTemplate(event) {
-    const {type, destination, options, price, startTime, endTime} = event;
+  getTemplate() {
+    const {type, destination, options, price, startTime, endTime} = this._event;
     const offerMarkup = options.map((it) => this.getOfferMarkup(it)).join(`\n`);
 
     return (
@@ -55,14 +55,7 @@ export default class TripEventItemComponent {
     );
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate(this._event));
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setClickHandler(cb) {
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, cb);
   }
 }

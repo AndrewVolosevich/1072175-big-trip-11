@@ -1,9 +1,9 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
-export default class TripFiltersComponent {
+export default class TripFiltersComponent extends AbstractComponent {
   constructor(filters) {
+    super();
     this._filters = filters;
-    this._element = null;
   }
 
   getMarkup(name, isChecked) {
@@ -16,8 +16,8 @@ export default class TripFiltersComponent {
     );
   }
 
-  getTemplate(filters) {
-    const filterMarkup = filters.map((it, i) => this.getMarkup(it, i === 0)).join(`\n`);
+  getTemplate() {
+    const filterMarkup = this._filters.map((it, i) => this.getMarkup(it, i === 0)).join(`\n`);
 
     return (
       `<form class="trip-filters" action="#" method="get">
@@ -25,16 +25,5 @@ export default class TripFiltersComponent {
         <button class="visually-hidden" type="submit">Accept filter</button>
       </form>`
     );
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate(this._filters));
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
