@@ -25,4 +25,4 @@ render(tripControlsElem, tripFiltersComponent, RenderPosition.BEFOREEND);
 const tripEventsElem = document.querySelector(`.trip-events`);
 
 const tripController = new TripController(tripEventsElem);
-tripController.render(datesArr);
+tripController.render(tripEventMocks);
