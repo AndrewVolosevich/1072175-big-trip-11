@@ -5,7 +5,7 @@ import {render, replace, RenderPosition} from "../utils/render";
 const Mode = {
   DEFAULT: `default`,
   EDIT: `edit`,
-}
+};
 
 
 export default class EventController {
@@ -77,5 +77,5 @@ export default class EventController {
       this._replaceFormToEvent();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
-  };
+  }
 }

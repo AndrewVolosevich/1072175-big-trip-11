@@ -239,7 +239,7 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
   }
 
   reset() {
-    const event = this._event;
+    // const event = this._event; for the future
 
     this.rerender();
   }

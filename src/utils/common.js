@@ -45,4 +45,4 @@ export const getEventType = (event) => {
   const eventType = `` + str + (isMoovEvent ? ` to ` : ` in `);
 
   return eventType;
-}
+};
