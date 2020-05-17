@@ -1,13 +1,18 @@
 import {setDateFormat, getEventType} from '../utils/common';
 import {destinations} from '../consts';
 import AbstractSmartComponent from './abstract-smart-component';
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 export default class TripEventFormComponent extends AbstractSmartComponent {
   constructor(event) {
     super();
     this._event = event;
+    this._flatpickr = null;
 
     this._submitHandler = null;
+
+    this._applyFlatpickr();
     this._subscribeOnEvents();
   }
 
@@ -236,6 +241,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
 
   rerender() {
     super.rerender();
+
+    this._applyFlatpickr();
   }
 
   reset() {
@@ -256,7 +263,6 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
   }
 
   _subscribeOnEvents() {
-
     const element = this.getElement();
 
     element.querySelector(`.event__type-list`)
@@ -269,6 +275,37 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     .addEventListener(`change`, (evt) => {
       this._event.destinations = evt.target.value;
       this.rerender();
+    });
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    const startDateElement = this.getElement().querySelector(`#event-start-time-1`);
+    const endDateElement = this.getElement().querySelector(`#event-end-time-1`);
+    this._flatpickr = flatpickr(startDateElement, {
+      altInput: true,
+      enableTime: true,
+      // eslint-disable-next-line camelcase
+      time_24hr: true,
+      allowInput: true,
+      altFormat: `d/m/y H:i`,
+      dateFormat: `Z`,
+      defaultDate: this._event.startTime || `today`,
+    });
+
+    this._flatpickr = flatpickr(endDateElement, {
+      altInput: true,
+      enableTime: true,
+      // eslint-disable-next-line camelcase
+      time_24hr: true,
+      allowInput: true,
+      altFormat: `d/m/y H:i`,
+      dateFormat: `Z`,
+      defaultDate: this._event.endTime || `today`,
     });
 
   }
