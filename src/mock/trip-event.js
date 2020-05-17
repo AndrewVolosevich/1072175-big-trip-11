@@ -1,5 +1,5 @@
 import {getRandom, getRandomDate, getRandomIntegerNumber} from "../utils/common";
-import {types, destinations, infoStrings, options, foto} from "../consts";
+import {types, destinations, infoStrings, options, fotos} from "../consts";
 import {MAX_ITEMS} from "../consts";
 
 export const generateTripEvent = () => {
@@ -13,7 +13,8 @@ export const generateTripEvent = () => {
     options: getRandom(options, 2),
     info: getRandom(infoStrings, 3),
     price: getRandomIntegerNumber(0, 1000),
-    foto,
+    isFavorite: Math.random() > 0.5,
+    fotos: fotos(),
     startTime,
     endTime,
     timeDif,
@@ -26,17 +27,18 @@ for (let i = 0; i < MAX_ITEMS; i++) {
 }
 tripEventMocks.sort((prev, cur) => prev.startTime - cur.startTime);
 
-const days = [];
 export const createDaysArr = (tripPoints) => {
   let startDate = tripPoints[0].startTime.getDate();
   let lastDate = tripPoints[tripPoints.length - 1].startTime.getDate();
+  let days = [];
 
   for (let i = startDate; i <= lastDate; i++) {
-    days.push(tripPoints.filter((point) => point.startTime.getDate() === i).map((point) => {
+    const newDay = tripPoints.filter((point) => point.startTime.getDate() === i);
+    newDay.map((point) => {
       point.dayIndex = (point.startTime.getDate() - startDate) >= 0 ? point.startTime.getDate() - startDate + 1 : 1;
-      return point;
-    }));
+    });
+    days.push(newDay);
   }
+
+  return days;
 };
-createDaysArr(tripEventMocks);
-export const datesArr = days;

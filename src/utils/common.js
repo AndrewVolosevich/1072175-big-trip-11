@@ -38,3 +38,11 @@ export const getRandom = (array = [], count = 0) => {
   }
   return array[randomIndex];
 };
+
+export const getEventType = (event) => {
+  const isMoovEvent = !(event.type === `check-in` || event.type === `sightseeing` || event.type === `restaurant`);
+  const str = event.type[0].toUpperCase() + event.type.slice(1);
+  const eventType = `` + str + (isMoovEvent ? ` to ` : ` in `);
+
+  return eventType;
+};

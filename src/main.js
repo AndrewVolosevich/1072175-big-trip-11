@@ -1,5 +1,5 @@
 import {render, RenderPosition} from "./utils/render";
-import {tripEventMocks, datesArr} from "./mock/trip-event";
+import {tripEventMocks} from "./mock/trip-event";
 import {filterItems} from "./consts";
 import TripInfoComponent from "./components/trip-info";
 import TripTabsComponent from "./components/trip-tabs";
@@ -25,4 +25,4 @@ render(tripControlsElem, tripFiltersComponent, RenderPosition.BEFOREEND);
 const tripEventsElem = document.querySelector(`.trip-events`);
 
 const tripController = new TripController(tripEventsElem);
-tripController.render(datesArr);
+tripController.render(tripEventMocks);
