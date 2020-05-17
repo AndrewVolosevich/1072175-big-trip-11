@@ -26,3 +26,4 @@ const tripEventsElem = document.querySelector(`.trip-events`);
 
 const tripController = new TripController(tripEventsElem);
 tripController.render(tripEventMocks);
+console.log(tripEventMocks);

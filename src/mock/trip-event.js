@@ -1,5 +1,5 @@
 import {getRandom, getRandomDate, getRandomIntegerNumber} from "../utils/common";
-import {types, destinations, infoStrings, options, foto} from "../consts";
+import {types, destinations, infoStrings, options, fotos} from "../consts";
 import {MAX_ITEMS} from "../consts";
 
 export const generateTripEvent = () => {
@@ -13,7 +13,8 @@ export const generateTripEvent = () => {
     options: getRandom(options, 2),
     info: getRandom(infoStrings, 3),
     price: getRandomIntegerNumber(0, 1000),
-    foto,
+    isFavorite: Math.random() > 0.5,
+    fotos: fotos(),
     startTime,
     endTime,
     timeDif,

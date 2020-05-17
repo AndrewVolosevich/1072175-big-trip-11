@@ -1,14 +1,16 @@
+import {getRandomIntegerNumber} from "./utils/common";
+
 export const types = [
-  `Taxi`,
-  `Bus`,
-  `Train`,
-  `Ship`,
-  `Transport`,
-  `Drive`,
-  `Flight`,
-  `Check-in`,
-  `Sightseeing`,
-  `Restaurant`
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `drive`,
+  `flight`,
+  `check-in`,
+  `sightseeing`,
+  `restaurant`
 ];
 
 export const destinations = [
@@ -46,7 +48,16 @@ export const MONTH_NAMES = [
   `December`,
 ];
 
-export const foto = `http://picsum.photos/248/152?r=${Math.random()}`;
+export const fotos = () => {
+  const count = getRandomIntegerNumber(0, 5);
+  const fotosArr = [];
+
+  for (let i = 0; i <= count; i++) {
+    let foto = `http://picsum.photos/248/152?r=${Math.random()}`;
+    fotosArr.push(foto);
+  }
+  return fotosArr;
+};
 
 export const options = [
   {
