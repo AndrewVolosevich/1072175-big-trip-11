@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
 };
@@ -10,11 +12,11 @@ export const getRandomDate = (min = 0, max = 0) => {
 };
 
 export const setTimeFormat = (time) => {
-  return `${((time.getHours() >= 10) ? time.getHours() : `0` + time.getHours())}:${((time.getMinutes() >= 10) ? time.getMinutes() : `0` + time.getMinutes())}`;
+  return moment(time).format(`HH:mm`);
 };
 
 export const setDateFormat = (date) => {
-  return `${date.getDate() < 10 ? `0` + date.getDate() : date.getDate()}/${date.getMonth() < 10 ? `0` + date.getMonth() : date.getMonth()}/${String(date.getFullYear()).slice(2)} ${setTimeFormat(date)}`;
+  return moment(date).add(10, `days`).calendar();
 };
 
 export const setEventDurationFormat = (start, end) => {
