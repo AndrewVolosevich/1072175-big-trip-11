@@ -20,13 +20,13 @@ export const setDateFormat = (date) => {
 };
 
 export const setEventDurationFormat = (start, end) => {
-  let days = ``;
-  let hours = ``;
-  let minutes = ``;
-  days = Math.trunc((end - start) / 86400000);
-  hours = Math.trunc((end - start) / 3600000) - days * 24;
-  minutes = Math.trunc((end - start) / 60000) - days * 24 * 60 - hours * 60;
-  return `${(days === 0) ? `` : days + `D`} ${(hours === ``) ? `` : hours + `H`} ${(minutes === ``) ? `` : minutes + `M`}`;
+  const a = moment(start);
+  const b = moment(end);
+
+  const days = b.diff(a, `days`);
+  const hours = b.diff(a, `hours`) - days * 24;
+  const minutes = b.diff(a, `minutes`) - days * 24 * 60 - hours * 60;
+  return `${(days < 1) ? `` : days + `D`} ${(hours < 1) ? `` : hours + `H`} ${minutes + `M`}`;
 };
 
 export const getRandom = (array = [], count = 0) => {
