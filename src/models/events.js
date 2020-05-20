@@ -1,5 +1,5 @@
 
-export default class Events {
+export default class EventsModel {
   constructor() {
     this._events = [];
 
@@ -34,5 +34,4 @@ export default class Events {
   _callHandlers(handlers) {
     handlers.forEach((handler) => handler());
   }
-
 }
