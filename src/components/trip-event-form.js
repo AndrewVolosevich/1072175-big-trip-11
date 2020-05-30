@@ -3,6 +3,14 @@ import {destinations} from '../consts';
 import AbstractSmartComponent from './abstract-smart-component';
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import {encode} from "he";
+
+const parseFormData = (formData) => {
+  // return {
+  //   description: formData.get(`event-destination-1`),
+  // };
+  return formData;
+};
 
 export default class TripEventFormComponent extends AbstractSmartComponent {
   constructor(event) {
@@ -11,6 +19,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     this._flatpickr = null;
 
     this._submitHandler = null;
+    this._deleteButtonClickHandler = null;
+    this._favoriteCheckHandler = null;
 
     this._applyFlatpickr();
     this._subscribeOnEvents();
@@ -38,20 +48,95 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     return (string.indexOf(value) !== -1);
   }
 
+  getOptionsMarkup() {
+    let offersString = ``;
+    if (this._event.options) {
+      this._event.options.forEach((option) => {
+        offersString += offersString + ` ` + option.title;
+        return offersString;
+      });
+    }
+
+    return (
+      `<section class="event__details">
+      <section class="event__section  event__section--offers">
+        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+        <div class="event__available-offers">
+          <div class="event__offer-selector">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${this.isStringContain(offersString, `Add luggage`) ? `checked` : ``}>
+            <label class="event__offer-label" for="event-offer-luggage-1">
+              <span class="event__offer-title">Add luggage</span>
+              &plus;
+              &euro;&nbsp;<span class="event__offer-price">30</span>
+            </label>
+          </div>
+
+          <div class="event__offer-selector">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" ${this.isStringContain(offersString, `Switch to comfort class`) ? `checked` : ``}>
+            <label class="event__offer-label" for="event-offer-comfort-1">
+              <span class="event__offer-title">Switch to comfort class</span>
+              &plus;
+              &euro;&nbsp;<span class="event__offer-price">100</span>
+            </label>
+          </div>
+
+          <div class="event__offer-selector">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal" ${this.isStringContain(offersString, `Add meal`) ? `checked` : ``}>
+            <label class="event__offer-label" for="event-offer-meal-1">
+              <span class="event__offer-title">Add meal</span>
+              &plus;
+              &euro;&nbsp;<span class="event__offer-price">15</span>
+            </label>
+          </div>
+
+          <div class="event__offer-selector">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats" ${this.isStringContain(offersString, `Choose seats`) ? `checked` : ``}>
+            <label class="event__offer-label" for="event-offer-seats-1">
+              <span class="event__offer-title">Choose seats</span>
+              &plus;
+              &euro;&nbsp;<span class="event__offer-price">5</span>
+            </label>
+          </div>
+
+          <div class="event__offer-selector">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train" ${this.isStringContain(offersString, `Travel by train`) ? `checked` : ``}>
+            <label class="event__offer-label" for="event-offer-train-1">
+              <span class="event__offer-title">Travel by train</span>
+              &plus;
+              &euro;&nbsp;<span class="event__offer-price">40</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      ${this._event.destination ? this.getDestinationMarkup() : ``}`
+    );
+  }
+
+  getDestinationMarkup() {
+    return (
+      `<section class="event__section  event__section--destination">
+        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+        <p class="event__destination-description">${this._event.info ? this._event.info.join(` `) : ``}</p>
+
+        <div class="event__photos-container">
+          <div class="event__photos-tape">
+            ${this._event.fotos ? this.getFotos() : ``}
+          </div>
+        </div>
+      </section>`
+    );
+  }
+
   getTemplate() {
     const {type, price, startTime, endTime} = this._event;
     const startType = type ? type : `bus`;
     const startPrice = price ? price : ``;
     const eventType = getEventType(this._event);
 
-    let offersString = ``;
-    this._event.options.forEach((option) => {
-      offersString += offersString + ` ` + option.title;
-      return offersString;
-    });
-
     return (
-      `<form class="event  event--edit" action="#" method="post">
+      `<form class="trip-events__item event  event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -167,75 +252,25 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
           </button>
         </header>
 
-        <section class="event__details">
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-            <div class="event__available-offers">
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${this.isStringContain(offersString, `Add luggage`) ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-luggage-1">
-                  <span class="event__offer-title">Add luggage</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">30</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" ${this.isStringContain(offersString, `Switch to comfort class`) ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-comfort-1">
-                  <span class="event__offer-title">Switch to comfort class</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">100</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal" ${this.isStringContain(offersString, `Add meal`) ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-meal-1">
-                  <span class="event__offer-title">Add meal</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">15</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats" ${this.isStringContain(offersString, `Choose seats`) ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-seats-1">
-                  <span class="event__offer-title">Choose seats</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">5</span>
-                </label>
-              </div>
-
-              <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train" ${this.isStringContain(offersString, `Travel by train`) ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-train-1">
-                  <span class="event__offer-title">Travel by train</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">40</span>
-                </label>
-              </div>
-            </div>
-          </section>
-
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${this._event.info.join(` `)}</p>
-
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${this.getFotos()}
-              </div>
-            </div>
-          </section>
+        ${this.getOptionsMarkup()}
         </section>
       </form>`
     );
   }
 
+  removeElement() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    super.removeElement();
+  }
+
   recoveryListeners() {
     this.setSubmitHandler(this._submitHandler);
+    this.setDeleteButtonClickHandler(this._deleteButtonClickHandler);
+    this.setFavoritesCheckHandler(this._favoriteCheckHandler);
     this._subscribeOnEvents();
   }
 
@@ -245,9 +280,15 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     this._applyFlatpickr();
   }
 
-  reset() {
-    // const event = this._event; for the future
+  getData() {
+    const form = this.getElement();
+    const formData = new FormData(form);
 
+    console.log(formData);
+    return parseFormData(formData);
+  }
+
+  reset() {
     this.rerender();
   }
 
@@ -260,6 +301,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
   setFavoritesCheckHandler(handler) {
     this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`change`, handler);
+
+    this._favoriteCheckHandler = handler;
   }
 
   _subscribeOnEvents() {
@@ -276,6 +319,13 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
       this._event.destinations = evt.target.value;
       this.rerender();
     });
+  }
+
+  setDeleteButtonClickHandler(handler) {
+    this.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, handler);
+
+    this._deleteButtonClickHandler = handler;
   }
 
   _applyFlatpickr() {

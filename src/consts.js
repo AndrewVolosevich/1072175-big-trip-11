@@ -30,8 +30,13 @@ export const infoStrings = [
   `Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat.`,
   `Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`
 ];
-export const sortItems = [`Event`, `Time`, `Price`];
-export const filterItems = [`Everything`, `Future`, `Past`];
+
+export const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`,
+};
+
 export const MAX_ITEMS = 25;
 export const MONTH_NAMES = [
   `January`,

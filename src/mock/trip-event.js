@@ -8,7 +8,7 @@ export const generateTripEvent = () => {
   const timeDif = endTime - startTime;
 
   return {
-    id: String(new Date() + Math.random()),
+    id: String(+new Date() + Math.random()),
     type: getRandom(types),
     destination: getRandom(destinations),
     options: getRandom(options, 2),

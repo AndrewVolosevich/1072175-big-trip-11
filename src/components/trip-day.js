@@ -13,7 +13,7 @@ export default class TripDayComponent extends AbstractComponent {
     let dayIndex = this._day[0].dayIndex;
     let month = MONTH_NAMES[this._day[0].startTime.getMonth()].substr(0, 3);
     let date = this._day[0].startTime.getDate();
-    const newDay = this._day.sort((a, b) => {
+    const newDay = this._day.slice().sort((a, b) => {
       return a.dayIndex - b.dayIndex;
     });
 
