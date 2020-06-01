@@ -5,6 +5,7 @@ import TripSortComponent from "../components/trip-sort";
 import EventController, {Mode as EventControllerMode, EmptyEvent} from "../controllers/event-controller";
 import {render, RenderPosition} from "../utils/render";
 import {createDaysArr} from "../mock/trip-event";
+import {HIDDEN_CLASS} from "../components/abstract-component";
 
 export const SortType = {
   DEFAULT: `event`,
@@ -76,11 +77,11 @@ export default class TripController {
   }
 
   hide() {
-    this._container.hide();
+    this._container.classList.add(HIDDEN_CLASS);
   }
 
   show() {
-    this._container.show();
+    this._container.classList.remove(HIDDEN_CLASS);
   }
 
   render() {
