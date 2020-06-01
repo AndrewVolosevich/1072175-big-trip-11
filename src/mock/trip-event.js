@@ -8,6 +8,7 @@ export const generateTripEvent = () => {
   const timeDif = endTime - startTime;
 
   return {
+    id: String(+new Date() + Math.random()),
     type: getRandom(types),
     destination: getRandom(destinations),
     options: getRandom(options, 2),
@@ -25,20 +26,22 @@ export const tripEventMocks = [];
 for (let i = 0; i < MAX_ITEMS; i++) {
   tripEventMocks.push(generateTripEvent());
 }
-tripEventMocks.sort((prev, cur) => prev.startTime - cur.startTime);
+
 
 export const createDaysArr = (tripPoints) => {
-  let startDate = tripPoints[0].startTime.getDate();
-  let lastDate = tripPoints[tripPoints.length - 1].startTime.getDate();
+  tripPoints.sort((prev, cur) => prev.startTime - cur.startTime);
+  let startDate = tripPoints[0].startTime;
+  let lastDate = tripPoints[tripPoints.length - 1].startTime;
+  const daysCount = Math.ceil((lastDate - startDate) / 86400000);
   let days = [];
-
-  for (let i = startDate; i <= lastDate; i++) {
-    const newDay = tripPoints.filter((point) => point.startTime.getDate() === i);
+  for (let i = 1; i <= daysCount + 1; i++) {
+    const newDay = tripPoints.filter((point) => {
+      return point.startTime.getDate() === new Date(+startDate + (i - 1) * 86400000).getDate();
+    });
     newDay.map((point) => {
-      point.dayIndex = (point.startTime.getDate() - startDate) >= 0 ? point.startTime.getDate() - startDate + 1 : 1;
+      point.dayIndex = i;
     });
     days.push(newDay);
   }
-
   return days;
 };

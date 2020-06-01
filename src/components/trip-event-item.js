@@ -1,4 +1,5 @@
 import {setTimeFormat, setEventDurationFormat, getEventType} from "../utils/common";
+import {encode} from "he";
 import AbstractComponent from "./abstract-component";
 
 export default class TripEventItemComponent extends AbstractComponent {
@@ -19,7 +20,10 @@ export default class TripEventItemComponent extends AbstractComponent {
 
   getTemplate() {
     const {type, destination, options, price, startTime, endTime} = this._event;
-    const offerMarkup = options.map((it) => this.getOfferMarkup(it)).join(`\n`);
+    let offerMarkup = [];
+    if (options) {
+      offerMarkup = options.map((it) => this.getOfferMarkup(it)).join(`\n`);
+    }
     const eventType = getEventType(this._event);
 
 
@@ -41,12 +45,12 @@ export default class TripEventItemComponent extends AbstractComponent {
           </div>
 
           <p class="event__price">
-            &euro;&nbsp;<span class="event__price-value">${price}</span>
+            &euro;&nbsp;<span class="event__price-value">${encode(String(price))}</span>
           </p>
 
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            ${offerMarkup}
+            ${options ? offerMarkup : ``}
           </ul>
 
           <button class="event__rollup-btn" type="button">
