@@ -43,6 +43,5 @@ export const createDaysArr = (tripPoints) => {
     });
     days.push(newDay);
   }
-  console.log(days);
   return days;
 };
