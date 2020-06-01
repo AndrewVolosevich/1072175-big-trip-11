@@ -3,7 +3,8 @@ import {tripEventMocks} from "./mock/trip-event";
 import EventsModel from "./models/events";
 import TripInfoComponent from "./components/trip-info";
 import TripController from "./controllers/trip-controller";
-import TripMenuController from "./controllers/trip-menu";
+import TripMenuController, { MenuItem } from "./controllers/trip-menu";
+import StatisticsComponent from "./components/statistics";
 
 
 const eventsModel = new EventsModel();
@@ -29,3 +30,26 @@ const tripEventsElem = document.querySelector(`.trip-events`);
 
 const tripController = new TripController(tripEventsElem, eventsModel, tripMenuController);
 tripController.render();
+
+const pageBodyContainer = document.querySelector(`.page-body__page-main`).querySelector(`.page-body__container`);
+
+const statisticsComponent = new StatisticsComponent(eventsModel.getEvents());
+render(pageBodyContainer, statisticsComponent, RenderPosition.BEFOREEND);
+statisticsComponent.hide();
+
+const OnTabClick = (tabItem) => {
+  switch (tabItem) {
+    case MenuItem.STATS:
+      tripController.hide();
+      statisticsComponent.show();
+      tripMenuController.setNewEventValueTrue();
+      break;
+    case MenuItem.TABLE:
+      statisticsComponent.hide();
+      tripController.show();
+      tripMenuController.setDefaultNewEvent();
+      break;
+  }
+};
+
+tripMenuController.setOnTabClick(OnTabClick);

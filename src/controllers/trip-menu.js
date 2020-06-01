@@ -5,7 +5,6 @@ import TripButtonComponent from "../components/trip-button";
 
 
 export const MenuItem = {
-  NEW_TASK: `control__new-task`,
   STATS: `control__stats`,
   TABLE: `control__table`,
 };
@@ -22,10 +21,9 @@ export default class TripMenuController {
     this._menuItem = MenuItem.TABLE;
     this._newEventHandler = newEventHandler;
 
-    this._onTabValueChange = this._onTabValueChange.bind(this);
     this._onClickNewEventButton = this._onClickNewEventButton.bind(this);
 
-    this._tripTabsComponent.setTabValueChangeHandler(this._onTabValueChange);
+    // this._tripTabsComponent.setTabValueChangeHandler(this._onTabValueChange);
     this._tripButtonComponent.setNewEventClickHandler(this._onClickNewEventButton);
   }
 
@@ -39,11 +37,6 @@ export default class TripMenuController {
   rerender() {
     this._tripTabsComponent.rerender();
     this._tripButtonComponent.rerender();
-  }
-
-  _onTabValueChange(tabValue) {
-    this._tripTabsComponent.setTabValue(tabValue);
-    this._tripTabsComponent.rerender();
   }
 
   _onClickNewEventButton(value) {
@@ -80,5 +73,12 @@ export default class TripMenuController {
 
   getFiltersController() {
     return this._filtersController;
+  }
+
+  setOnTabClick(handler) {
+    this._onTabClickHandler = handler;
+    this._tripTabsComponent.setTabValueChangeHandler(this._onTabClickHandler);
+    this._tripTabsComponent.setTabClickHandler(this._onTabClickHandler);
+    this._tripTabsComponent.rerender();
   }
 }
