@@ -38,7 +38,6 @@ render(pageBodyContainer, statisticsComponent, RenderPosition.BEFOREEND);
 statisticsComponent.hide();
 
 const OnTabClick = (tabItem) => {
-  console.log(tabItem);
   switch (tabItem) {
     case MenuItem.STATS:
       tripController.hide();
