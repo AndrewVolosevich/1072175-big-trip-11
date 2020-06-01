@@ -43,6 +43,7 @@ export default class FiltersController {
 
   setDefaultFilter() {
     this._activeFilterType = FilterType.EVERYTHING;
+    this.render();
   }
 
   _onDataChange() {

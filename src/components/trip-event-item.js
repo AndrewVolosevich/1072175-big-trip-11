@@ -1,4 +1,5 @@
 import {setTimeFormat, setEventDurationFormat, getEventType} from "../utils/common";
+import {encode} from "he";
 import AbstractComponent from "./abstract-component";
 
 export default class TripEventItemComponent extends AbstractComponent {
@@ -44,7 +45,7 @@ export default class TripEventItemComponent extends AbstractComponent {
           </div>
 
           <p class="event__price">
-            &euro;&nbsp;<span class="event__price-value">${price}</span>
+            &euro;&nbsp;<span class="event__price-value">${encode(String(price))}</span>
           </p>
 
           <h4 class="visually-hidden">Offers:</h4>

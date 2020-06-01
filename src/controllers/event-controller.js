@@ -9,22 +9,24 @@ export const Mode = {
   ADDING: `adding`,
 };
 
+const newDate = new Date();
+
 export const EmptyEvent = {
   id: String(+new Date() + Math.random()),
   type: `bus`,
   destination: ``,
   options: null,
   info: ``,
-  price: ``,
+  price: `0`,
   isFavorite: false,
   fotos: null,
-  startTime: new Date(),
-  endTime: new Date(),
+  startTime: newDate,
+  endTime: new Date(newDate.getTime() + (24 * 60 * 60 * 1000)),
   timeDif: ``,
 };
 
 export default class EventController {
-  constructor(container, onDataChange, onViewChange) {
+  constructor(container, onDataChange, onViewChange, onFavoriteChange) {
     this._container = container;
     this._tripEventItemComponent = null;
     this._tripEventFormComponent = null;
@@ -33,6 +35,7 @@ export default class EventController {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._onCancelButtonPress = this._onCancelButtonPress.bind(this);
     this._onDataChange = onDataChange;
+    this._onFavoriteChange = onFavoriteChange;
     this._onViewChange = onViewChange;
   }
 
@@ -53,7 +56,7 @@ export default class EventController {
       tripMenuController.setNewEventValueTrue();
     });
     this._tripEventFormComponent.setFavoritesCheckHandler(() => {
-      this._onDataChange(this, event, Object.assign({}, event, {
+      this._onFavoriteChange(this, event, Object.assign({}, event, {
         isFavorite: !this._event.isFavorite,
       }));
     });
@@ -76,6 +79,17 @@ export default class EventController {
           replace(this._tripEventFormComponent, oldEventFormComponent);
           this._replaceFormToEvent();
         } else {
+          render(this._container, this._tripEventItemComponent, RenderPosition.BEFOREEND);
+        }
+        break;
+      case Mode.EDIT:
+        if (oldEventFormComponent && oldEventComponent) {
+          replace(this._tripEventItemComponent, oldEventComponent);
+          replace(this._tripEventFormComponent, oldEventFormComponent);
+          this._tripEventFormComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._onCancelButtonPress);
+        } else {
+          document.addEventListener(`keydown`, this._onEscKeyDown);
+          this._tripEventFormComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._onCancelButtonPress);
           render(this._container, this._tripEventItemComponent, RenderPosition.BEFOREEND);
         }
         break;
@@ -125,7 +139,6 @@ export default class EventController {
   _onEscKeyDown(evt) {
     const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
     if (isEscKey) {
-      console.log(`esc`);
       if (this._mode === Mode.ADDING) {
         this._onDataChange(this, EmptyEvent, null);
       }
@@ -137,7 +150,6 @@ export default class EventController {
 
   _onCancelButtonPress(evt) {
     const isCancelButton = evt.target === this._tripEventFormComponent.getElement().querySelector(`.event__rollup-btn`);
-    console.log(`cancel`);
     if (isCancelButton) {
       if (this._mode === Mode.ADDING) {
         this._onDataChange(this, EmptyEvent, null);

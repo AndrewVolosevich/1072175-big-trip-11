@@ -16,7 +16,7 @@ export const setTimeFormat = (time) => {
 };
 
 export const setDateFormat = (date) => {
-  return moment(date).add(10, `days`).calendar();
+  return moment(date).format(`YYYY-MM-DD`);
 };
 
 export const setEventDurationFormat = (start, end) => {

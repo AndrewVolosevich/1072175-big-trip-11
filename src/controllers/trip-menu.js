@@ -3,6 +3,7 @@ import FiltersController from "./filters-controller";
 import TripTabsComponent from "../components/trip-tabs";
 import TripButtonComponent from "../components/trip-button";
 
+
 export const MenuItem = {
   NEW_TASK: `control__new-task`,
   STATS: `control__stats`,
@@ -47,12 +48,17 @@ export default class TripMenuController {
 
   _onClickNewEventButton(value) {
     this._newEventHandler(value);
-    this._tripButtonComponent.rerender();
+    this._filtersController.setDefaultFilter();
+    this.rerender();
   }
 
   setDefaultTab() {
     this._menuItem = MenuItem.TABLE;
     this._tripTabsComponent.setTabValue(this._menuItem);
+  }
+
+  setDefaultFilter() {
+    this._filtersController.setDefaultFilter();
   }
 
   setDefaultNewEvent() {
@@ -68,7 +74,7 @@ export default class TripMenuController {
   setDefaultMenu() {
     this.setDefaultTab();
     this.setDefaultNewEvent();
-    // this._filtersController.setDefaultFilter();
+    this._filtersController.setDefaultFilter();
     this.rerender();
   }
 
