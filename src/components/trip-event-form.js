@@ -82,8 +82,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     const optionsArr = [];
     newOptions[0].offers.forEach((item, index) => optionsArr.push(
         `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort" type="checkbox" name="event-offer-${type}-${index}" ${isTitleExist(item.title, this._event) ? `checked` : ``}>
-          <label class="event__offer-label" for="event-offer-comfort">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-${index}" type="checkbox" name="event-offer-${type}-${index}" ${isTitleExist(item.title, this._event) ? `checked` : ``}>
+          <label class="event__offer-label" for="event-offer-comfort-${index}">
             <span class="event__offer-title">${item.title}</span>
             &plus;
             &euro;&nbsp;<span class="event__offer-price">${item.price}</span>
