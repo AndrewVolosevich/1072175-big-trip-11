@@ -44,11 +44,12 @@ const getSortedTripEvents = (events, sortItem) => {
 };
 
 export default class TripController {
-  constructor(container, eventsModel, tripMenuController) {
+  constructor(container, eventsModel, tripMenuController, serverApi) {
     this._container = container;
     this._eventsModel = eventsModel;
     this._showedEventsControllers = [];
     this._showedDays = [];
+    this._serverApi = serverApi;
 
     this._noTripPoints = new NoTripPoints();
     this._activeSortType = SortType.DEFAULT;
@@ -163,11 +164,15 @@ export default class TripController {
       this._eventsModel.removeEvent(oldData.id);
       this._updateEvents();
     } else {
-      const isSuccess = this._eventsModel.updateEvent(oldData.id, newData);
+      this._serverApi.updateTask(oldData.id, newData)
+        .then((eventModel) => {
+          const isSuccess = this._tasksModel.updateTask(oldData.id, eventModel);
 
-      if (isSuccess) {
-        eventController.render(newData, EventControllerMode.DEFAULT);
-      }
+          if (isSuccess) {
+            eventController.render(eventModel, EventControllerMode.DEFAULT);
+            this._updateTasks(this._showingTasksCount);
+          }
+        });
     }
     this._tripMenuController.setDefaultNewEvent();
   }

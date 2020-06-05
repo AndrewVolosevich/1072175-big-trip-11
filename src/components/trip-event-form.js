@@ -1,40 +1,37 @@
 import {setDateFormat, getEventType} from '../utils/common';
-import {destinations} from '../consts';
 import AbstractSmartComponent from './abstract-smart-component';
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import {encode} from "he";
 
-const parseFormData = (formData) => {
+const isTitleExist = (title, event) => {
+  const arr = event.options.filter((item) => item.title === title);
+
+  return arr.length ? true : false;
+};
+
+const parseFormData = (formData, event, optionsItem) => {
   const diff = new Date(formData.get(`event-end-time`)) - new Date(formData.get(`event-start-time`));
   const isFavorite = (formData.get(`event-favorite`) === `on`) ? true : false;
   const options = [];
+  const type = formData.get(`event-type`);
 
-  if (formData.get(`event-offer-luggage`) === `on`) {
-    options.push({type: `transport`, title: `Add luggage`, price: `30`});
-  }
-  if (formData.get(`event-offer-comfort`) === `on`) {
-    options.push({type: `transport`, title: `Switch to comfort class`, price: `100`});
-  }
-  if (formData.get(`event-offer-meal`) === `on`) {
-    options.push({type: `transport`, title: `Add meal`, price: `15`});
-  }
-  if (formData.get(`event-offer-seats`) === `on`) {
-    options.push({type: `transport`, title: `Choose seats`, price: `5`});
-  }
-  if (formData.get(`evevent-offer-train`) === `on`) {
-    options.push({type: `transport`, title: `Travel by train`, price: `40`});
-  }
+  const optArr = optionsItem.filter((item) => item.type === type);
+  optArr[0].offers.forEach((offer, index) => {
+    if (formData.get(`event-offer-${type}-${index}`) === `on`) {
+      options.push({type, title: offer.title, price: offer.price});
+    }
+  });
 
   return {
     id: String(+new Date() + Math.random()),
-    type: formData.get(`event-type`),
-    destination: formData.get(`event-destination`),
+    type,
+    destination: event.destination,
     options,
-    info: ``,
+    info: event.info,
     price: formData.get(`event-price`),
     isFavorite,
-    fotos: null,
+    fotos: event.fotos,
     startTime: new Date(formData.get(`event-start-time`)),
     endTime: new Date(formData.get(`event-end-time`)),
     timeDif: diff,
@@ -42,9 +39,11 @@ const parseFormData = (formData) => {
 };
 
 export default class TripEventFormComponent extends AbstractSmartComponent {
-  constructor(event) {
+  constructor(event, destinations, options) {
     super();
     this._event = event;
+    this._destinations = destinations;
+    this._options = options;
     this._flatpickr = null;
 
     this._submitHandler = null;
@@ -59,7 +58,7 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     let destOpt = ``;
     array.forEach((item) => {
       return (
-        destOpt += `<option value="${item}"></option>`
+        destOpt += `<option value="${item.name}">${item.name}</option>`
       );
     });
     return destOpt;
@@ -68,7 +67,7 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
   getFotos() {
     const fotos = [];
     this._event.fotos.forEach((foto) => {
-      fotos.push(`<img class="event__photo" src="${foto}" alt="Event photo"></img>`);
+      fotos.push(`<img class="event__photo" src="${foto.src}" alt="${foto.description}"></img>`);
     });
     return fotos.join(``);
   }
@@ -78,68 +77,28 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
   }
 
   getOptionsMarkup() {
-    let offersString = ``;
-    if (this._event.options) {
-      this._event.options.forEach((option) => {
-        offersString += offersString + ` ` + option.title;
-        return offersString;
-      });
-    }
+    const type = this._event.type;
+    const newOptions = this._options.filter((item) => item.type === type);
+    const optionsArr = [];
+    newOptions[0].offers.forEach((item, index) => optionsArr.push(
+        `<div class="event__offer-selector">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort" type="checkbox" name="event-offer-${type}-${index}" ${isTitleExist(item.title, this._event) ? `checked` : ``}>
+          <label class="event__offer-label" for="event-offer-comfort">
+            <span class="event__offer-title">${item.title}</span>
+            &plus;
+            &euro;&nbsp;<span class="event__offer-price">${item.price}</span>
+          </label>
+        </div>`
+    ));
 
     return (
-      `<section class="event__details">
-      <section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      `<section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
-        <div class="event__available-offers">
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" ${this.isStringContain(offersString, `Add luggage`) ? `checked` : ``}>
-            <label class="event__offer-label" for="event-offer-luggage-1">
-              <span class="event__offer-title">Add luggage</span>
-              &plus;
-              &euro;&nbsp;<span class="event__offer-price">30</span>
-            </label>
+          <div class="event__available-offers">
+            ${optionsArr.join(``)}
           </div>
-
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" ${this.isStringContain(offersString, `Switch to comfort class`) ? `checked` : ``}>
-            <label class="event__offer-label" for="event-offer-comfort-1">
-              <span class="event__offer-title">Switch to comfort class</span>
-              &plus;
-              &euro;&nbsp;<span class="event__offer-price">100</span>
-            </label>
-          </div>
-
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal" ${this.isStringContain(offersString, `Add meal`) ? `checked` : ``}>
-            <label class="event__offer-label" for="event-offer-meal-1">
-              <span class="event__offer-title">Add meal</span>
-              &plus;
-              &euro;&nbsp;<span class="event__offer-price">15</span>
-            </label>
-          </div>
-
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats" ${this.isStringContain(offersString, `Choose seats`) ? `checked` : ``}>
-            <label class="event__offer-label" for="event-offer-seats-1">
-              <span class="event__offer-title">Choose seats</span>
-              &plus;
-              &euro;&nbsp;<span class="event__offer-price">5</span>
-            </label>
-          </div>
-
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train" ${this.isStringContain(offersString, `Travel by train`) ? `checked` : ``}>
-            <label class="event__offer-label" for="event-offer-train-1">
-              <span class="event__offer-title">Travel by train</span>
-              &plus;
-              &euro;&nbsp;<span class="event__offer-price">40</span>
-            </label>
-          </div>
-        </div>
-      </section>
-
-      ${this._event.destination ? this.getDestinationMarkup() : ``}`
+        </section>`
     );
   }
 
@@ -147,11 +106,11 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     return (
       `<section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${this._event.info ? this._event.info.join(` `) : ``}</p>
+        <p class="event__destination-description">${this._event.info ? this._event.info : ``}</p>
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
-            ${this._event.fotos ? this.getFotos() : ``}
+            ${this._event.destination ? this.getFotos() : ``}
           </div>
         </div>
       </section>`
@@ -238,9 +197,9 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
             <label class="event__label  event__type-output" for="event-destination-1">
             ${eventType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._event.destination ? this._event.destination : ``}"   list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="" placeholder="${this._event.destination ? this._event.destination : ``}"  list="destination-list-1">
               <datalist id="destination-list-1">
-              ${this.getDestinationsMarkup(destinations)}
+              ${this.getDestinationsMarkup(this._destinations)}
               </datalist>
           </div>
 
@@ -280,7 +239,11 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
           </button>
         </header>
 
-        ${this.getOptionsMarkup()}
+        <section class="event__details">
+        ${this._options.length ? this.getOptionsMarkup() : ``}
+
+
+        ${this._event.destination ? this.getDestinationMarkup() : ``}
         </section>
       </form>`
     );
@@ -311,7 +274,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
   getData() {
     const form = this.getElement();
     const formData = new FormData(form);
-    return parseFormData(formData);
+
+    return parseFormData(formData, this._event.destination, this._options);
   }
 
   reset() {
@@ -342,7 +306,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
 
     element.querySelector(`.event__input--destination`)
     .addEventListener(`change`, (evt) => {
-      this._event.destinations = evt.target.value;
+      this._event.destination = evt.target.value;
+      this._setDestinationOptions();
       this.rerender();
     });
   }
@@ -384,5 +349,12 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
       defaultDate: this._event.endTime || `today`,
     });
 
+  }
+
+  _setDestinationOptions() {
+    const newDestination = this._destinations.filter((item) => item.name === this._event.destination);
+    this._event.fotos = newDestination[0].pictures;
+    this._event.info = newDestination[0].description;
+    return newDestination[0];
   }
 }

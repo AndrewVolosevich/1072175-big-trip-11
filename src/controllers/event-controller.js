@@ -2,6 +2,7 @@ import TripEventItemComponent from "../components/trip-event-item";
 import TripEventFormComponent from "../components/trip-event-form";
 import {render, replace, remove, RenderPosition} from "../utils/render";
 import {tripMenuController} from "../main";
+import ServerAPI from "../serverApi";
 
 export const Mode = {
   DEFAULT: `default`,
@@ -10,18 +11,36 @@ export const Mode = {
 };
 
 const newDate = new Date();
+const AUTHORIZATION = `Basic kTy9gIdsz2317rD`;
+
+const serverApi = new ServerAPI(AUTHORIZATION);
+const destinations = [];
+const options = [];
+
+serverApi.getDestinations()
+.then((response) => response
+  .forEach((item) => destinations.push(item)))
+.then(() => destinations);
+
+serverApi.getOptions()
+.then((response) => response
+  .forEach((item) => options.push(item)))
+.then(() => options);
+
+const startTime = new Date();
+const endTime = new Date(newDate.getTime() + (24 * 60 * 60 * 1000));
 
 export const EmptyEvent = {
   id: String(+new Date() + Math.random()),
   type: `bus`,
   destination: ``,
-  options: null,
+  options: [],
   info: ``,
   price: `0`,
   isFavorite: false,
-  fotos: null,
-  startTime: newDate,
-  endTime: new Date(newDate.getTime() + (24 * 60 * 60 * 1000)),
+  fotos: [],
+  startTime,
+  endTime,
   timeDif: ``,
 };
 
@@ -46,7 +65,8 @@ export default class EventController {
 
     this._event = event;
     this._tripEventItemComponent = new TripEventItemComponent(this._event);
-    this._tripEventFormComponent = new TripEventFormComponent(this._event);
+    this._tripEventFormComponent = new TripEventFormComponent(this._event, destinations, options);
+
 
     this._tripEventItemComponent.setClickHandler(() => {
       this._replaceEventToForm();
@@ -55,6 +75,7 @@ export default class EventController {
       tripMenuController.setDefaultMenu();
       tripMenuController.setNewEventValueTrue();
     });
+
     this._tripEventFormComponent.setFavoritesCheckHandler(() => {
       this._onFavoriteChange(this, event, Object.assign({}, event, {
         isFavorite: !this._event.isFavorite,
@@ -64,11 +85,11 @@ export default class EventController {
     this._tripEventFormComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
       const data = this._tripEventFormComponent.getData();
-      this._onDataChange(this, event, data);
+      this._onDataChange(this, this._event, data);
     });
 
     this._tripEventFormComponent.setDeleteButtonClickHandler(() => {
-      this._onDataChange(this, event, null);
+      this._onDataChange(this, this._event, null);
       tripMenuController.setDefaultNewEvent();
     });
 

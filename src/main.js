@@ -3,13 +3,16 @@ import {tripEventMocks} from "./mock/trip-event";
 import EventsModel from "./models/events";
 import TripInfoComponent from "./components/trip-info";
 import TripController from "./controllers/trip-controller";
-import TripMenuController, { MenuItem } from "./controllers/trip-menu";
+import TripMenuController, {MenuItem} from "./controllers/trip-menu";
 import StatisticsComponent from "./components/statistics";
+import ServerAPI from "./serverApi";
 
+const AUTHORIZATION = `Basic kTy9gIdsz2317rD`;
+
+const serverAPI = new ServerAPI(AUTHORIZATION);
+serverAPI.getOptions();
 
 const eventsModel = new EventsModel();
-eventsModel.setEvents(tripEventMocks);
-
 const mainTripElem = document.querySelector(`.trip-main`);
 
 const tripInfoComponent = new TripInfoComponent(tripEventMocks);
@@ -28,8 +31,14 @@ tripMenuController.render();
 
 const tripEventsElem = document.querySelector(`.trip-events`);
 
-const tripController = new TripController(tripEventsElem, eventsModel, tripMenuController);
-tripController.render();
+const tripController = new TripController(tripEventsElem, eventsModel, tripMenuController, serverAPI);
+// tripController.render();
+
+serverAPI.getEvents()
+  .then((events) => {
+    eventsModel.setEvents(events);
+    tripController.render();
+  });
 
 const pageBodyContainer = document.querySelector(`.page-body__page-main`).querySelector(`.page-body__container`);
 
