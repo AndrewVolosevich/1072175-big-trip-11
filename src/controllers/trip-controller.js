@@ -2,7 +2,7 @@ import TripDayComponent from "../components/trip-day";
 import TripDaysComponent from "../components/trip-days";
 import NoTripPoints from "../components/no-trip-points";
 import TripSortComponent from "../components/trip-sort";
-import EventController, {Mode as EventControllerMode, EmptyEvent} from "../controllers/event-controller";
+import EventController, {Mode as EventControllerMode, EmptyEvent} from "./event-controller";
 import {render, RenderPosition} from "../utils/render";
 import {createDaysArr} from "../mock/trip-event";
 import {HIDDEN_CLASS} from "../components/abstract-component";
@@ -151,27 +151,43 @@ export default class TripController {
         eventController.destroy();
         this._updateEvents();
       } else {
-        this._eventsModel.addEvent(newData);
-        eventController.render(newData, EventControllerMode.DEFAULT);
+        this._serverApi.createEvent(newData)
+          .then((eventModel) => {
+            this._eventsModel.addEvent(eventModel);
+            eventController.render(eventModel, EventControllerMode.DEFAULT);
 
-        this._showedEventControllers = [].concat(eventController, this._showedEventControllers);
+            this._showedEventControllers = [].concat(eventController, this._showedEventControllers);
+          })
+          .catch(() => {
+            eventController.shake();
+          });
       }
 
       this._container.querySelector(`.trip-events__item`).remove();
       createDaysArr(this._eventsModel.getEvents());
       this._updateEvents();
     } else if (newData === null) {
-      this._eventsModel.removeEvent(oldData.id);
-      this._updateEvents();
+      this._serverApi.deleteEvent(oldData.id)
+        .then(() => {
+          this._eventsModel.removeEvent(oldData.id);
+          this._updateEvents();
+        })
+        .catch(() => {
+          eventController.shake();
+        });
+
     } else {
-      this._serverApi.updateTask(oldData.id, newData)
+      this._serverApi.updateEvent(oldData.id, newData)
         .then((eventModel) => {
-          const isSuccess = this._tasksModel.updateTask(oldData.id, eventModel);
+          const isSuccess = this._eventsModel.updateEvent(oldData.id, eventModel);
 
           if (isSuccess) {
             eventController.render(eventModel, EventControllerMode.DEFAULT);
-            this._updateTasks(this._showingTasksCount);
+            this._updateEvents(this._showingEventsCount);
           }
+        })
+        .catch(() => {
+          eventController.shake();
         });
     }
     this._tripMenuController.setDefaultNewEvent();

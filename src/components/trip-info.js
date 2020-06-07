@@ -2,9 +2,13 @@ import {MONTH_NAMES} from "../consts";
 import AbstractComponent from "./abstract-component";
 
 export default class TripInfoElement extends AbstractComponent {
-  constructor(tripPoints) {
+  constructor() {
     super();
-    this._tripPoints = tripPoints;
+    this._tripPoints = null;
+  }
+
+  setPoints(points) {
+    this._tripPoints = points;
   }
 
   getTemplate() {
@@ -29,6 +33,7 @@ export default class TripInfoElement extends AbstractComponent {
       const month = MONTH_NAMES[this._tripPoints[0].startTime.getMonth()].substr(0, 3);
       const startDate = this._tripPoints[0].startTime.getDate();
       const endDate = this._tripPoints[this._tripPoints.length - 1].startTime.getDate();
+      // console.log(this._tripPoints[0]);
 
       return `${month} ${startDate}&nbsp;&mdash;&nbsp;${endDate}`;
     };
@@ -36,13 +41,13 @@ export default class TripInfoElement extends AbstractComponent {
     return (
       `<section class="trip-main__trip-info  trip-info">
         <div class="trip-info__main">
-          <h1 class="trip-info__title">${getTripPoints(this._tripPoints)}</  h1>
+          <h1 class="trip-info__title">${this._tripPoints ? getTripPoints(this._tripPoints) : ``}</  h1>
 
-          <p class="trip-info__dates">${getTripDates()}</p>
+          <p class="trip-info__dates">${this._tripPoints ? getTripDates() : ``}</p>
         </div>
 
         <p class="trip-info__cost">
-          Total: &euro;&nbsp;<span class="trip-info__cost-value">${this._tripPoints.reduce(getPrice, 0)}</span>
+          Total: &euro;&nbsp;<span class="trip-info__cost-value">${this._tripPoints ? this._tripPoints.reduce(getPrice, 0) : ``}</span>
         </p>
       </section>`
     );

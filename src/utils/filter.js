@@ -7,14 +7,14 @@ export const getAllEvents = (events) => {
 
 export const getFutureEvents = (events, nowDate) => {
   const futureEvents = events.filter((event) => {
-    return event.endTime < nowDate;
+    return event.startTime > nowDate;
   });
   return futureEvents;
 };
 
 export const getPastEvents = (events, nowDate) => {
   const pastEvents = events.filter((event) => {
-    return event.endTime > nowDate;
+    return event.endTime < nowDate;
   });
   return pastEvents;
 };

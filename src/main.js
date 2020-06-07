@@ -1,23 +1,18 @@
 import {render, RenderPosition} from "./utils/render";
-import {tripEventMocks} from "./mock/trip-event";
 import EventsModel from "./models/events";
 import TripInfoComponent from "./components/trip-info";
 import TripController from "./controllers/trip-controller";
 import TripMenuController, {MenuItem} from "./controllers/trip-menu";
 import StatisticsComponent from "./components/statistics";
 import ServerAPI from "./serverApi";
+import {AUTHORIZATION, END_POINT} from "./consts";
 
-const AUTHORIZATION = `Basic kTy9gIdsz2317rD`;
-
-const serverAPI = new ServerAPI(AUTHORIZATION);
+const serverAPI = new ServerAPI(END_POINT, AUTHORIZATION);
 serverAPI.getOptions();
 
 const eventsModel = new EventsModel();
 const mainTripElem = document.querySelector(`.trip-main`);
-
-const tripInfoComponent = new TripInfoComponent(tripEventMocks);
-render(mainTripElem, tripInfoComponent, RenderPosition.AFTERBEGIN);
-
+const tripInfoComponent = new TripInfoComponent();
 const tripControlsElem = document.querySelector(`.trip-controls`);
 const newEventHandler = () => {
   tripMenuController.setDefaultTab();
@@ -27,16 +22,16 @@ const newEventHandler = () => {
 };
 
 export const tripMenuController = new TripMenuController(tripControlsElem, eventsModel, newEventHandler);
-tripMenuController.render();
-
 const tripEventsElem = document.querySelector(`.trip-events`);
-
 const tripController = new TripController(tripEventsElem, eventsModel, tripMenuController, serverAPI);
-// tripController.render();
 
 serverAPI.getEvents()
   .then((events) => {
     eventsModel.setEvents(events);
+    tripInfoComponent.setPoints(eventsModel.getAllEvents());
+    render(mainTripElem, tripInfoComponent, RenderPosition.AFTERBEGIN);
+
+    tripMenuController.render();
     tripController.render();
   });
 

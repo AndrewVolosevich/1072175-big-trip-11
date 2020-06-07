@@ -1,5 +1,8 @@
 import {getRandomIntegerNumber} from "./utils/common";
 
+export const AUTHORIZATION = `Basic kTy9gIdsz2317rD`;
+export const END_POINT = `https://11.ecmascript.pages.academy/big-trip/`;
+
 export const types = [
   `taxi`,
   `bus`,

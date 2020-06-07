@@ -1,8 +1,12 @@
 import TripEventItemComponent from "../components/trip-event-item";
 import TripEventFormComponent from "../components/trip-event-form";
+import EventModel from "../models/event";
 import {render, replace, remove, RenderPosition} from "../utils/render";
 import {tripMenuController} from "../main";
 import ServerAPI from "../serverApi";
+import {AUTHORIZATION, END_POINT} from "../consts";
+
+const SHAKE_ANIMATION_TIMEOUT = 600;
 
 export const Mode = {
   DEFAULT: `default`,
@@ -11,10 +15,10 @@ export const Mode = {
 };
 
 const newDate = new Date();
-const AUTHORIZATION = `Basic kTy9gIdsz2317rD`;
 
-const serverApi = new ServerAPI(AUTHORIZATION);
+const serverApi = new ServerAPI(END_POINT, AUTHORIZATION);
 const destinations = [];
+const apiOptions = [];
 const options = [];
 
 serverApi.getDestinations()
@@ -24,8 +28,8 @@ serverApi.getDestinations()
 
 serverApi.getOptions()
 .then((response) => response
-  .forEach((item) => options.push(item)))
-.then(() => options);
+  .forEach((item) => apiOptions.push(item)))
+.then(() => apiOptions);
 
 const startTime = new Date();
 const endTime = new Date(newDate.getTime() + (24 * 60 * 60 * 1000));
@@ -42,6 +46,33 @@ export const EmptyEvent = {
   startTime,
   endTime,
   timeDif: ``,
+};
+
+const parseFormData = (formData, event, optionsItem) => {
+  const isFavorite = (formData.get(`event-favorite`) === `on`) ? true : false;
+  const type = formData.get(`event-type`);
+
+  const optArr = optionsItem.filter((item) => item.type === type);
+  optArr[0].offers.forEach((offer, index) => {
+    if (formData.get(`event-offer-${type}-${index}`) === `on`) {
+      options.push({type, title: offer.title, price: offer.price});
+    }
+  });
+
+  return new EventModel({
+    "id": event.id,
+    type,
+    "offers": options,
+    "destination": {
+      "name": event.destination,
+      "description": event.info,
+      "pictures": event.fotos,
+    },
+    "base_price": formData.get(`event-price`),
+    "is_favorite": isFavorite,
+    "date_from": formData.get(`event-start-time`),
+    "date_to": formData.get(`event-end-time`),
+  });
 };
 
 export default class EventController {
@@ -65,7 +96,7 @@ export default class EventController {
 
     this._event = event;
     this._tripEventItemComponent = new TripEventItemComponent(this._event);
-    this._tripEventFormComponent = new TripEventFormComponent(this._event, destinations, options);
+    this._tripEventFormComponent = new TripEventFormComponent(this._event, destinations, apiOptions);
 
 
     this._tripEventItemComponent.setClickHandler(() => {
@@ -77,18 +108,30 @@ export default class EventController {
     });
 
     this._tripEventFormComponent.setFavoritesCheckHandler(() => {
-      this._onFavoriteChange(this, event, Object.assign({}, event, {
-        isFavorite: !this._event.isFavorite,
-      }));
+      const newEvent = EventModel.clone(event);
+      newEvent.isFavorite = !newEvent.isFavorite;
+
+      this._onDataChange(this, event, newEvent);
     });
 
     this._tripEventFormComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
-      const data = this._tripEventFormComponent.getData();
+
+      const formData = this._tripEventFormComponent.getData();
+      const data = parseFormData(formData, this._event, apiOptions);
+
+      this._tripEventFormComponent.setData({
+        saveButtonText: `Saving...`,
+      });
+
       this._onDataChange(this, this._event, data);
     });
 
     this._tripEventFormComponent.setDeleteButtonClickHandler(() => {
+      this._tripEventFormComponent.setData({
+        deleteButtonText: `Deleting...`,
+      });
+
       this._onDataChange(this, this._event, null);
       tripMenuController.setDefaultNewEvent();
     });
@@ -137,6 +180,21 @@ export default class EventController {
     remove(this._tripEventItemComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     document.removeEventListener(`click`, this._onCancelButtonPress);
+  }
+
+  shake() {
+    this._tripEventFormComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._tripEventItemComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._tripEventFormComponent.getElement().style.animation = ``;
+      this._tripEventItemComponent.getElement().style.animation = ``;
+
+      this._tripEventFormComponent.setData({
+        saveButtonText: `Save`,
+        deleteButtonText: `Delete`,
+      });
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
   _replaceEventToForm() {

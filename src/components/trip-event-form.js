@@ -4,38 +4,15 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import {encode} from "he";
 
+const DefaultData = {
+  deleteButtonText: `Delete`,
+  saveButtonText: `Save`,
+};
+
 const isTitleExist = (title, event) => {
   const arr = event.options.filter((item) => item.title === title);
 
   return arr.length ? true : false;
-};
-
-const parseFormData = (formData, event, optionsItem) => {
-  const diff = new Date(formData.get(`event-end-time`)) - new Date(formData.get(`event-start-time`));
-  const isFavorite = (formData.get(`event-favorite`) === `on`) ? true : false;
-  const options = [];
-  const type = formData.get(`event-type`);
-
-  const optArr = optionsItem.filter((item) => item.type === type);
-  optArr[0].offers.forEach((offer, index) => {
-    if (formData.get(`event-offer-${type}-${index}`) === `on`) {
-      options.push({type, title: offer.title, price: offer.price});
-    }
-  });
-
-  return {
-    id: String(+new Date() + Math.random()),
-    type,
-    destination: event.destination,
-    options,
-    info: event.info,
-    price: formData.get(`event-price`),
-    isFavorite,
-    fotos: event.fotos,
-    startTime: new Date(formData.get(`event-start-time`)),
-    endTime: new Date(formData.get(`event-end-time`)),
-    timeDif: diff,
-  };
 };
 
 export default class TripEventFormComponent extends AbstractSmartComponent {
@@ -45,6 +22,7 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     this._destinations = destinations;
     this._options = options;
     this._flatpickr = null;
+    this._externalData = DefaultData;
 
     this._submitHandler = null;
     this._deleteButtonClickHandler = null;
@@ -122,6 +100,19 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
     const startType = type ? type : `bus`;
     const startPrice = price ? encode(String(price)) : ``;
     const eventType = getEventType(this._event);
+    const deleteButtonText = this._externalData.deleteButtonText;
+    const saveButtonText = this._externalData.saveButtonText;
+
+    const isOptions = () => {
+      const curOptions = this._options.filter((item) => {
+        return item.type === type;
+      });
+      if (curOptions[0].offers.length) {
+        return true;
+      }
+      return false;
+    };
+
     return (
       `<form class="trip-events__item event  event--edit" action="#" method="post">
         <header class="event__header">
@@ -223,8 +214,8 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
             <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${startPrice}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
+          <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
 
           <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._event.isFavorite ? `checked` : ``}>
           <label class="event__favorite-btn" for="event-favorite-1">
@@ -240,7 +231,7 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
         </header>
 
         <section class="event__details">
-        ${this._options.length ? this.getOptionsMarkup() : ``}
+        ${isOptions() ? this.getOptionsMarkup() : ``}
 
 
         ${this._event.destination ? this.getDestinationMarkup() : ``}
@@ -273,9 +264,13 @@ export default class TripEventFormComponent extends AbstractSmartComponent {
 
   getData() {
     const form = this.getElement();
-    const formData = new FormData(form);
 
-    return parseFormData(formData, this._event.destination, this._options);
+    return new FormData(form);
+  }
+
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+    this.rerender();
   }
 
   reset() {
